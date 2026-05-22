@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
+
+dns.setDefaultResultOrder("ipv4first");
 
 export const sendOtpEmail = async (email, otpCode, type) => {
   const isRegister = type === "register";
@@ -36,8 +39,8 @@ export const sendOtpEmail = async (email, otpCode, type) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         host: SMTP_HOST,
-        port: 587,
-        secure: true, // true for 465, false for other ports
+        port: SMTP_PORT,
+        secure: true,
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
