@@ -29,26 +29,19 @@ export const sendOtpEmail = async (email, otpCode, type) => {
     </div>
   `;
 
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+
   if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS) {
     try {
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
+        service: "gmail",
+        host: SMTP_HOST,
         port: 587,
-        secure: false,
-        requireTLS: true,
-      
+        secure: true, // true for 465, false for other ports
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: SMTP_USER,
+          pass: SMTP_PASS,
         },
-      
-        tls: {
-          rejectUnauthorized: false,
-        },
-      
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
       });
 
       await transporter.sendMail({
