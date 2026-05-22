@@ -1,7 +1,4 @@
-import nodemailer from "nodemailer";
-import dns from "dns";
 
-dns.setDefaultResultOrder("ipv4first");
 
 export const sendOtpEmail = async (email, otpCode, type) => {
   const isRegister = type === "register";
@@ -32,34 +29,39 @@ export const sendOtpEmail = async (email, otpCode, type) => {
     </div>
   `;
 
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  const { BREVO_API_KEY, SMTP_USER } = process.env;
 
-  if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS) {
+  if (BREVO_API_KEY && SMTP_USER) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        family: 4,
-
-        auth: {
-          user: SMTP_USER,
-          pass: SMTP_PASS,
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "api-key": BREVO_API_KEY,
+          "content-type": "application/json"
         },
+        body: JSON.stringify({
+          sender: {
+            name: "SiPina Admin",
+            email: SMTP_USER
+          },
+          to: [{ email: email }],
+          subject: subject,
+          htmlContent: htmlContent,
+          textContent: textContent
+        })
       });
 
-      await transporter.sendMail({
-        from: `"SiPina Admin" <${SMTP_USER}>`,
-        to: email,
-        subject: subject,
-        text: textContent,
-        html: htmlContent,
-      });
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("[SMTP] Error sending email via Brevo:", errorData);
+        return false;
+      }
 
       console.log(`[SMTP] Email OTP successfully sent to ${email}`);
       return true;
     } catch (error) {
-      console.error("[SMTP] Error sending email via SMTP:", error);
+      console.error("[SMTP] Error sending email via Brevo:", error);
       return false; // fallback to showing in console so it doesn't crash the server
     }
   } else {
