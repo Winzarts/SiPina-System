@@ -37,8 +37,8 @@ export const sendOtpEmail = async (email, otpCode, type) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         host: SMTP_HOST,
-        port: parseInt(SMTP_PORT),
-        secure: parseInt(SMTP_PORT) === 465, // true for 465, false for other ports
+        port: 465,
+        secure: true, // true for 465, false for other ports
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
