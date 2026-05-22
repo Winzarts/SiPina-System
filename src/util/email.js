@@ -38,7 +38,10 @@ export const sendOtpEmail = async (email, otpCode, type) => {
         service: "gmail",
         host: SMTP_HOST,
         port: 465,
-        secure: true, // true for 465, false for other ports
+        secure: true,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
@@ -57,8 +60,7 @@ export const sendOtpEmail = async (email, otpCode, type) => {
       return true;
     } catch (error) {
       console.error("[SMTP] Error sending email via SMTP:", error);
-      console.log(`[OTP FALLBACK DEBUG] OTP Code: ${otpCode} for email ${email}`);
-      return true; // fallback to showing in console so it doesn't crash the server
+      return false; // fallback to showing in console so it doesn't crash the server
     }
   } else {
     console.log("\n==================================================");
